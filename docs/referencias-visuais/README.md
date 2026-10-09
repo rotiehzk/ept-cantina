@@ -53,4 +53,3 @@ Datas, refeições, estados e navegação ilustrados não criam novas regras. Us
 ### 6. rever a nova interface no telemóvel
 
 ![Referência visual 6](06-telemovel.png)
-

@@ -26,5 +26,9 @@ jobs:
         run: npm run install:ci
       - name: Verificar TypeScript
         run: npx tsc --noEmit
+      - name: Instalar navegador de testes
+        run: npx playwright install --with-deps chromium
+      - name: Testar carregamento de semanas
+        run: npm test
       - name: Compilar
         run: npm run build

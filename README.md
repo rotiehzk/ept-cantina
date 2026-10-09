@@ -22,7 +22,7 @@ A base de dados local deve receber as migrações Drizzle, em ordem, através do
 ## Colaboração no GitHub
 Repositório: https://github.com/rotiehzk/ept-cantina.
 
-Os colegas podem criar um fork, trabalhar numa branch e abrir um pull request para main. O responsável pelo projeto, @rotiehzk, revê as alterações e decide se as integra. As verificações automáticas executam TypeScript e a compilação em cada pull request. Consultar [CONTRIBUTING.md](CONTRIBUTING.md) para os passos completos.
+Os colegas podem criar um fork, trabalhar numa branch e abrir um pull request para main. O responsável pelo projeto, @rotiehzk, revê as alterações e decide se as integra. As verificações automáticas executam TypeScript, os testes de carregamento de semanas e a compilação em cada pull request. Consultar [CONTRIBUTING.md](CONTRIBUTING.md) para os passos completos.
 
 A publicação do site é feita separadamente; aceitar um pull request não publica automaticamente uma nova versão.
 
@@ -41,3 +41,7 @@ Confirmar com a escola o prazo de marcação, horário, feriados, semanas letiva
 
 ## Validação
 Compilação e verificação TypeScript; confirmação de escolhas, persistência após recarregar, contagens por opção, perfis e edição de ementa; verificação de layouts móveis em navegador. Não foi realizado teste num dispositivo físico Android ou iOS.
+
+### Testes de carregamento de semanas
+
+Depois de instalar as dependências, executar `npx playwright install chromium` e `npm test`. Os testes correm em Chromium nos tamanhos de desktop e telemóvel e simulam a API com perfis fictícios, sem usar a base de dados ou credenciais da escola. Cobrem falhas e recuperação de carregamento, preservação de escolhas pendentes, respostas fora de ordem e exportação após recarregar.

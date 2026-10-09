@@ -15,9 +15,16 @@ Web app responsiva em português, inspirada nas cores do website da Escola Profi
 Demonstração funcional e privada. Não está ligada à API da escola e não recebe números de aluno, NIFs ou palavras-passe reais. O formulário de acesso apresenta o modelo pretendido; o campo de palavra-passe fica desativado até existir a integração. A troca entre aluno e cantina é uma simulação, e não uma autorização de acesso institucional.
 
 ## Desenvolvimento
-Node.js >=22.13.0. Instalar com npm ci. Gerar migrações com npm run db:generate e compilar com npm run build. A pré-visualização usa npm run dev. Em Windows, se o shim do npm não funcionar, pode executar diretamente node scripts/run-framework.mjs dev ou build.
+Node.js >=22.13.0. Instalar com npm run install:ci. Gerar migrações com npm run db:generate e compilar com npm run build. A pré-visualização usa npm run dev. Em Windows, se o shim do npm não funcionar, pode executar diretamente node scripts/run-framework.mjs dev ou build.
 
 A base de dados local deve receber as migrações Drizzle, em ordem, através do Wrangler. A publicação Sites aplica as migrações de produção. O acesso local de demonstração pode ser ativado por /signin-with-chatgpt?return_to=/.
+
+## Colaboração no GitHub
+Repositório: https://github.com/rotiehzk/ept-cantina.
+
+Os colegas podem criar um fork, trabalhar numa branch e abrir um pull request para main. O responsável pelo projeto, @rotiehzk, revê as alterações e decide se as integra. As verificações automáticas executam TypeScript e a compilação em cada pull request. Consultar [CONTRIBUTING.md](CONTRIBUTING.md) para os passos completos.
+
+A publicação do site é feita separadamente; aceitar um pull request não publica automaticamente uma nova versão.
 
 ## Integração futura com a escola
 Obter a documentação da API, os endpoints de autenticação e o modelo de identificação de alunos e funcionários. Validar o login apenas no servidor, não guardar o NIF no navegador e aplicar autorização de aluno/cantina em todos os endpoints. Substituir os perfis fictícios pelo identificador estável devolvido pela escola e partilhar uma única base de dados institucional. O NIF é um identificador previsível: recomenda-se que a escola disponibilize uma palavra-passe própria ou o seu login institucional.

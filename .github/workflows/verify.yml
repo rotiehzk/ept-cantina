@@ -1,0 +1,30 @@
+name: Verificações
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verificar projeto
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Instalar dependências
+        run: npm run install:ci
+      - name: Verificar TypeScript
+        run: npx tsc --noEmit
+      - name: Compilar
+        run: npm run build

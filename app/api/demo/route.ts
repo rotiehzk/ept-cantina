@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
-import { students, weekDates, deadline, defaultMenu } from '../../domain';
+import { students, weekDates, deadline, defaultMenu, parseMenuAllergens } from '../../domain';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200) {return Response.json(data,{status,headers:{'Cache-Control':'no-store'}});}
 async function context(){const user=await getChatGPTUser();if(!user)return null;if(!env.DB)throw new Error('D1 unavailable');return {db:env.DB,key:user.userId};}
@@ -8,7 +8,7 @@ export async function GET(req:Request) {
  try {const c=await context();if(!c)return response({error:'Inicia sessão para guardar a demonstração.'},401);
  const offset=Number(new URL(req.url).searchParams.get('week')??0);if(!Number.isInteger(offset)||offset<0||offset>3)return response({error:'Semana inválida.'},400);
  const dates=weekDates(offset);
- const saved=await c.db.prepare('SELECT date, normal, vegetarian, soup, dessert FROM menus WHERE workspace = ? AND date >= ? AND date <= ?').bind(c.key,dates[0],dates[4]).all();
+ const saved=await c.db.prepare('SELECT date, normal, vegetarian, soup, dessert, normal_allergens AS normalAllergens, vegetarian_allergens AS vegetarianAllergens, soup_allergens AS soupAllergens, dessert_allergens AS dessertAllergens FROM menus WHERE workspace = ? AND date >= ? AND date <= ?').bind(c.key,dates[0],dates[4]).all();
  const rows=await c.db.prepare('SELECT student, date, choice FROM meal_choices WHERE workspace = ? AND date >= ? AND date <= ?').bind(c.key,dates[0],dates[4]).all();
  return response({menus:dates.map((d,i)=>saved.results.find(x=>x.date===d)??defaultMenu(d,i)),choices:rows.results});
  }catch(e){console.error('Demo read failed',e);return response({error:'Não foi possível carregar a semana. Tenta novamente.'},503);}
@@ -29,9 +29,11 @@ export async function POST(req:Request) {
  if(body.type==='menu') {
  const m=body.menu;if(!m||!dates.includes(m.date)||new Date()>deadline(m.date))return response({error:'Já não é possível editar este dia.'},409);
  if(['normal','vegetarian','soup','dessert'].some(k=>typeof m[k]!=='string'||!m[k].trim()||m[k].length>160))return response({error:'Preenche todos os campos (até 160 caracteres).'},400);
- await c.db.prepare('INSERT INTO menus (workspace,date,normal,vegetarian,soup,dessert) VALUES (?,?,?,?,?,?) ON CONFLICT(workspace,date) DO UPDATE SET normal=excluded.normal,vegetarian=excluded.vegetarian,soup=excluded.soup,dessert=excluded.dessert').bind(c.key,m.date,m.normal.trim(),m.vegetarian.trim(),m.soup.trim(),m.dessert.trim()).run();
+ const allergens=parseMenuAllergens(m);if(!allergens)return response({error:'Indica os alergénios de cada componente (até 500 caracteres) ou deixa o campo em branco.'},400);
+ await c.db.prepare('INSERT INTO menus (workspace,date,normal,vegetarian,soup,dessert,normal_allergens,vegetarian_allergens,soup_allergens,dessert_allergens) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(workspace,date) DO UPDATE SET normal=excluded.normal,vegetarian=excluded.vegetarian,soup=excluded.soup,dessert=excluded.dessert,normal_allergens=excluded.normal_allergens,vegetarian_allergens=excluded.vegetarian_allergens,soup_allergens=excluded.soup_allergens,dessert_allergens=excluded.dessert_allergens').bind(c.key,m.date,m.normal.trim(),m.vegetarian.trim(),m.soup.trim(),m.dessert.trim(),allergens.normalAllergens,allergens.vegetarianAllergens,allergens.soupAllergens,allergens.dessertAllergens).run();
  return response({ok:true});
  }
  return response({error:'Operação inválida.'},400);
  }catch(e){console.error('Demo save failed',e);return response({error:'Não foi possível guardar. As tuas escolhas continuam no ecrã.'},503);}
 }
+

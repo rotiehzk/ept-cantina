@@ -21,3 +21,16 @@ main{max-width:1400px;padding:26px 44px 24px;margin:auto}.demo-notice{font-size:
 .week-data-status{font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:15px}
 /* Keep the scrollable table from expanding the mobile viewport. */
 .table-scroll{contain:paint}
+
+
+/* Allergen information stays next to each component, before selection. */
+.meal-options,.meal-extras{grid-template-columns:repeat(2,minmax(0,1fr))}
+.meal-option,.meal-extras>div{min-width:0;overflow-wrap:anywhere}
+.allergen-info,.meal-extras .allergen-info{display:block;font-size:13px;line-height:1.6;letter-spacing:normal;color:var(--ink);margin:0 0 16px;overflow-wrap:anywhere}
+.meal-extras .allergen-info{margin:8px 0 0}
+.allergen-info strong{font-weight:650}
+.allergen-editor-hint{font-size:13px;line-height:1.65;margin:16px 0}
+.menu-editor-component{min-width:0;border:1px solid var(--border);border-radius:8px;padding:0 14px;margin:20px 0}
+.menu-editor-component legend{font-size:14px;font-weight:650;padding:0 6px}
+.field-label textarea{display:block;width:100%;font:inherit;font-size:14px;line-height:1.5;padding:12px;border:1px solid #dfe6ef;border-radius:6px;margin-top:8px;resize:vertical}
+@media(max-width:760px){.field-label textarea{font-size:16px}}

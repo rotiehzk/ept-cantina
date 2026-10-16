@@ -7,7 +7,7 @@ Web app responsiva em português, inspirada nas cores do website da Escola Profi
 - Marcação por dia: prato do dia, vegetariano ou não almoçar.
 - Confirmação explícita, alteração e resumo das escolhas.
 - Painel da cantina: quantidades confirmadas por dia e por opção, respostas em falta e exportação CSV.
-- Edição da ementa de demonstração.
+- Edição da ementa de demonstração e da informação de alergénios de cada componente.
 - Três perfis fictícios para testar o fluxo e as contagens.
 - Persistência no servidor com Cloudflare D1. As demonstrações são isoladas por utilizador autenticado na plataforma.
 
@@ -45,3 +45,12 @@ Compilação e verificação TypeScript; confirmação de escolhas, persistênci
 ### Testes de carregamento de semanas
 
 Depois de instalar as dependências, executar `npx playwright install chromium` e `npm test`. Os testes correm em Chromium nos tamanhos de desktop e telemóvel e simulam a API com perfis fictícios, sem usar a base de dados ou credenciais da escola. Cobrem falhas e recuperação de carregamento, preservação de escolhas pendentes, respostas fora de ordem e exportação após recarregar.
+
+
+### Informação de alergénios
+
+No painel da cantina, «Editar ementa» permite transcrever a informação fornecida pela cantina para o prato do dia, vegetariano, sopa e sobremesa, incluindo eventuais vestígios. São campos de texto independentes, até 500 caracteres. A app não deduz alergénios a partir dos pratos nem preenche dados oficiais: um campo em branco é guardado como `null` e apresentado como «Não informado», também nas ementas antigas e de exemplo. O texto fica junto de cada componente antes da seleção da refeição. Nesta demonstração, a edição continua acessível aos três perfis; a autorização institucional é tratada na issue #2.
+
+Aplicar também a migração `drizzle/0001_menu_allergens.sql` antes de executar a nova API. É aditiva e conserva as ementas e escolhas existentes. Os clientes que gravam ementas devem enviar `normalAllergens`, `vegetarianAllergens`, `soupAllergens` e `dessertAllergens`, cada um com texto ou `null`; campos omitidos ou inválidos são rejeitados sem gravação parcial.
+
+`npm run test:api` executa a API real contra SQLite em memória, com autenticação fictícia, e verifica migração, persistência, atualização, limpeza, validação, isolamento de contas e conservação das marcações. `npm test` inclui os fluxos de edição, recarregamento, falha de gravação e larguras de 360/393 píxeis para alergénios. Ambos correm na CI.

@@ -1,6 +1,14 @@
 export const students = [{id:'demo-1001',name:'Leonor',number:'1001'},{id:'demo-1002',name:'Miguel',number:'1002'},{id:'demo-1003',name:'Inês',number:'1003'}];
 export type Choice = 'normal'|'vegetarian'|'none';
-export type Menu = {date:string;normal:string;vegetarian:string;soup:string;dessert:string};
+export const menuComponents = ['normal','vegetarian','soup','dessert'] as const;
+export const allergenFields = ['normalAllergens','vegetarianAllergens','soupAllergens','dessertAllergens'] as const;
+export type MenuAllergens = Record<typeof allergenFields[number], string|null>;
+export type Menu = {date:string;normal:string;vegetarian:string;soup:string;dessert:string} & MenuAllergens;
+// Only information entered by the cantina is stored. Blank means unknown.
+export function parseMenuAllergens(menu:Record<string,unknown>):MenuAllergens|null {
+ if(allergenFields.some(k=>menu[k]!==null&&(typeof menu[k]!=='string'||menu[k].length>500)))return null;
+ return Object.fromEntries(allergenFields.map(k=>[k,typeof menu[k]==='string'?menu[k].trim()||null:null])) as MenuAllergens;
+}
 export function weekDates(offset=0, now=new Date()) {
  const d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
  d.setUTCDate(d.getUTCDate()+((8-d.getUTCDay())%7 || 7)+offset*7);
@@ -18,4 +26,5 @@ export const examples=[
  ['Peru estufado com arroz','Caril de grão com arroz','Sopa de espinafres','Banana'],
  ['Bacalhau com batatas','Empadão de legumes','Sopa de feijão','Fruta da época'],
 ];
-export function defaultMenu(date:string,i:number):Menu {const x=examples[i];return {date,normal:x[0],vegetarian:x[1],soup:x[2],dessert:x[3]};}
+export function defaultMenu(date:string,i:number):Menu {const x=examples[i];return {date,normal:x[0],vegetarian:x[1],soup:x[2],dessert:x[3],normalAllergens:null,vegetarianAllergens:null,soupAllergens:null,dessertAllergens:null};}
+

@@ -4,4 +4,6 @@ export const mealChoices = sqliteTable('meal_choices', {
 }, t => [primaryKey({ columns: [t.workspace,t.student,t.date] })]);
 export const menus = sqliteTable('menus', {
  workspace: text('workspace').notNull(), date: text('date').notNull(), normal: text('normal').notNull(), vegetarian: text('vegetarian').notNull(), soup: text('soup').notNull(), dessert: text('dessert').notNull(),
+ normalAllergens: text('normal_allergens'), vegetarianAllergens: text('vegetarian_allergens'), soupAllergens: text('soup_allergens'), dessertAllergens: text('dessert_allergens'),
 }, t => [primaryKey({ columns: [t.workspace,t.date] })]);
+

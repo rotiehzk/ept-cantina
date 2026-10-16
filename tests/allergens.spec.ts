@@ -44,6 +44,8 @@ test('allergens for each component can be edited, reloaded and cleared', async (
   await expect(page.getByRole('dialog')).not.toBeVisible();
   expect(writes).toHaveLength(1);
   await page.reload();
+  // Wait for the initial week effect before choosing a different day.
+  await expect(info(page)).toHaveCount(4);
   await page.getByRole('tab', { name: /^Terça/ }).click();
   await expect(info(page)).toHaveText(values.map(value => 'Alergénios: ' + value));
   await expect(page.getByRole('button', { name: /^Prato do dia .*Peixe/ })).toBeEnabled();

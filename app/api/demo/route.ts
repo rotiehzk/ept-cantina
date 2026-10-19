@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
-import { students, weekDates, deadline, defaultMenu } from '../../domain';
+import { students, weekDates, bookingStatus, defaultMenu } from '../../domain';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200) {return Response.json(data,{status,headers:{'Cache-Control':'no-store'}});}
 async function context(){const user=await getChatGPTUser();if(!user)return null;if(!env.DB)throw new Error('D1 unavailable');return {db:env.DB,key:user.userId};}
@@ -22,12 +22,12 @@ export async function POST(req:Request) {
  if(body.type==='choices') {
  if(!students.some(x=>x.id===body.student)||!Array.isArray(body.items)||body.items.length<1||body.items.length>5)return response({error:'Escolhas inválidas.'},400);
  if(new Set(body.items.map((x:any)=>x.date)).size!==body.items.length)return response({error:'Datas repetidas.'},400);
- for(const x of body.items){if(!dates.includes(x.date)||!['normal','vegetarian','none'].includes(x.choice))return response({error:'Escolhas inválidas.'},400);if(new Date()>deadline(x.date))return response({error:'O prazo de marcação deste dia terminou.'},409);}
+ for(const x of body.items){if(!dates.includes(x.date)||!['normal','vegetarian','none'].includes(x.choice))return response({error:'Escolhas inválidas.'},400);const status=bookingStatus(x.date);if(!status.open)return response({error:status.reason},409);}
  await c.db.batch(body.items.map((x:any)=>c.db.prepare('INSERT INTO meal_choices (workspace,student,date,choice,updated) VALUES (?,?,?,?,?) ON CONFLICT(workspace,student,date) DO UPDATE SET choice=excluded.choice,updated=excluded.updated').bind(c.key,body.student,x.date,x.choice,new Date().toISOString())));
  return response({ok:true});
  }
  if(body.type==='menu') {
- const m=body.menu;if(!m||!dates.includes(m.date)||new Date()>deadline(m.date))return response({error:'Já não é possível editar este dia.'},409);
+ const m=body.menu;if(!m||!dates.includes(m.date)||!bookingStatus(m.date).open)return response({error:'Já não é possível editar este dia.'},409);
  if(['normal','vegetarian','soup','dessert'].some(k=>typeof m[k]!=='string'||!m[k].trim()||m[k].length>160))return response({error:'Preenche todos os campos (até 160 caracteres).'},400);
  await c.db.prepare('INSERT INTO menus (workspace,date,normal,vegetarian,soup,dessert) VALUES (?,?,?,?,?,?) ON CONFLICT(workspace,date) DO UPDATE SET normal=excluded.normal,vegetarian=excluded.vegetarian,soup=excluded.soup,dessert=excluded.dessert').bind(c.key,m.date,m.normal.trim(),m.vegetarian.trim(),m.soup.trim(),m.dessert.trim()).run();
  return response({ok:true});
